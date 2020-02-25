@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "853020978928",
+    "firebase_url": "https://throwback-eb205.firebaseio.com",
+    "project_id": "throwback-eb205",
+    "storage_bucket": "throwback-eb205.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853020978928:android:e71cd92b854650e9d7dc35",
+        "android_client_info": {
+          "package_name": "com.joshua_m_baker.throwback"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "853020978928-vti3lgc83rv8lc2t6d2uupsm26pdgtoc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.joshua_m_baker.throwback",
+            "certificate_hash": "343622ef783c952aa0a28e343419215ac6cfeb94"
+          }
+        },
+        {
+          "client_id": "853020978928-th6ddpspn2f5q8p7k4mmobtna0955a10.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJpETOsSZqZtfxMs8-BMSDg9aM4xcVr-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "853020978928-th6ddpspn2f5q8p7k4mmobtna0955a10.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

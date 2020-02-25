@@ -42,7 +42,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Throwback"),),
+      appBar: AppBar(title: new Text(widget.person.name),),
       backgroundColor: Colors.white,
       body:Stack(
         children: <Widget>[
@@ -62,8 +62,9 @@ class _ChatPageState extends State<ChatPage> {
       child: ListView.builder(
         itemBuilder: (context, index) => buildMessage(index, messages[index]),
         itemCount: messages.length,
-        reverse: true,
+        //reverse: true,
         controller: listScrollController, 
+        padding: EdgeInsets.all(10.0),
       ),
     );
   }

@@ -7,8 +7,6 @@ class Person {
 }
 
 List<Person> contacts = [
-  Person("Bob"),
-  Person("Larry"),
-  Person("Kaitlynne")
+  Person("Test Person"),
 ];
 

@@ -1,4 +1,4 @@
-package com.example.throwback
+package com.joshua_m_baker.throwback
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

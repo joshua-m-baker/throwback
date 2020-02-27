@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'chat_page.dart';
 import 'contacts.dart';
+import 'signin_page.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -15,13 +17,14 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Helvetica',
       ),
       
-      home: ContactsPage(),
+      home: SignInPage(),
     );
   }
 }
 
 class ContactsPage extends StatefulWidget {
-  ContactsPage({Key key}) : super(key: key);
+  final String userId;
+  ContactsPage({Key key, @required this.userId}) : super(key: key);
 
   @override
   _ContactPageState createState() => _ContactPageState();
@@ -42,7 +45,7 @@ class _ContactPageState extends State<ContactsPage> {
               Navigator.push(
                 context, 
                 MaterialPageRoute(
-                  builder: (context) => ChatPage(person: contacts[index]),
+                  builder: (context) => ChatPage(myId: "3AV0WFSo0OfRDW5HmEdXrSVKxAZ2", peerId: "HN4sQGG6NvSR8EnjRY9iadNB09L2",),
                 ),
               );
             },
@@ -56,6 +59,11 @@ class _ContactPageState extends State<ContactsPage> {
         },
         
       ),
+    );
+  }
+  void _pushPage(BuildContext context, Widget page) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => page),
     );
   }
 }

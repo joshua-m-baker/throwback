@@ -40,14 +40,28 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void onSendMessage(String content, int type) {
-    textEditingController.clear();
-    //messages.add(MessageModel(content, DateTime.now()));
+    if (content.trim() != ''){
+      textEditingController.clear();
+    
+     Firestore.instance
+     .collection('messages')
+     .document(chatId)
+     .collection(chatId)
+     .add(
+          {
+            'fromId': widget.myId,
+            'toId': widget.peerId,
+            'timestamp': DateTime.now(),
+            'content': content,
+          },
+      );
     listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     setState(() {});
+    }
   }
 
   bool newestMessageLeft(int index){ 
-    return (index == 0 );
+    return (index == 0);
   }
 
   bool newestMessageRight(int index){ 
@@ -73,8 +87,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget buildMessages(){
-    print("ChatID");
-    print(chatId);
     return Flexible(
       child: StreamBuilder(
         stream: Firestore.instance
@@ -138,7 +150,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget buildMessage(index, DocumentSnapshot document){
-    if (document["from"] == widget.myId){
+    if (document["fromId"] == widget.myId){
       // right
       return Row(
         children: <Widget>[

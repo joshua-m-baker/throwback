@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:throwback/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:throwback/contacts_page.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -34,11 +34,10 @@ class SignInPageState extends State<SignInPage> {
     prefs = await SharedPreferences.getInstance();
 
     signedIn = await _googleSignIn.isSignedIn();
-    signedIn = false;
     if (signedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ContactsPage(userId: prefs.getString("id"))),
+        MaterialPageRoute(builder: (context) => ContactsPage()), //userId: prefs.getString("id")
       );
     }
 
@@ -165,7 +164,7 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
         prefs.setString("id", user.uid);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ContactsPage(userId: prefs.getString("id"))),
+          MaterialPageRoute(builder: (context) => ContactsPage()), //userId: prefs.getString("id")
         );
       } else {
         _success = false;

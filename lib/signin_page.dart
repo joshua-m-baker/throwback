@@ -35,9 +35,9 @@ class SignInPageState extends State<SignInPage> {
 
     signedIn = await _googleSignIn.isSignedIn();
     if (signedIn) {
-      Navigator.pushReplacement(
+      Navigator.pushNamed(
         context,
-        MaterialPageRoute(builder: (context) => ContactsPage()), //userId: prefs.getString("id")
+        '/chats', //userId: prefs.getString("id")
       );
     }
 
@@ -162,9 +162,9 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
         _success = true;
         _userID = user.uid;
         prefs.setString("id", user.uid);
-        Navigator.pushReplacement(
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(builder: (context) => ContactsPage()), //userId: prefs.getString("id")
+          '/chats', //userId: prefs.getString("id")
         );
       } else {
         _success = false;

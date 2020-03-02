@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:throwback/contacts_page.dart';
 import 'chat_page.dart';
 import 'signin_page.dart';
+import 'router.dart';
+import 'constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -19,7 +21,16 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Helvetica',
       ),
-      
+      onGenerateRoute: (RouteSettings settings) {
+      switch (settings.name){
+        case login:
+          return MaterialPageRoute( builder: (context) => SignInPage());
+          break;
+        case chats:
+          return MaterialPageRoute(builder: (context) => ContactsPage());
+          break;
+        };
+      },
       home: Scaffold(
         appBar: AppBar(title: Text("Throwback"),),
         body: Center(

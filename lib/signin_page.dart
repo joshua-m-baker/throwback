@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:throwback/contacts_page.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
-final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 SharedPreferences prefs;
 
@@ -17,73 +16,19 @@ class SignInPage extends StatefulWidget {
 
 class SignInPageState extends State<SignInPage> {
 
-  bool signedIn = false;
-  bool isLoading = false;
-
   @override
   void initState() {
     super.initState();
-    handleSignIn();
-  }
-
-  void handleSignIn() async{
-    this.setState(() {
-      isLoading = true;
-    });
-
-    prefs = await SharedPreferences.getInstance();
-
-    signedIn = await _googleSignIn.isSignedIn();
-    if (signedIn) {
-      Navigator.pushNamed(
-        context,
-        '/chats', //userId: prefs.getString("id")
-      );
-    }
-
-    this.setState(() {
-      isLoading = false;
-    });
-
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: <Widget>[
-          Builder(builder: (BuildContext context) {
-            return FlatButton(
-              child: const Text('Sign out'),
-              textColor: Theme.of(context).buttonColor,
-              onPressed: () async {
-                final FirebaseUser user = await _auth.currentUser();
-                if (user == null) {
-                  Scaffold.of(context).showSnackBar(const SnackBar(
-                    content: Text('No one has signed in.'),
-                  ));
-                  return;
-                }
-                _signOut();
-                final String uid = user.uid;
-                Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text(uid + ' has successfully signed out.'),
-                ));
-              },
-            );
-          })
-        ],
-      ),
-      body: Builder(builder: (BuildContext context) {
-        return ListView(
-          scrollDirection: Axis.vertical,
-          children: <Widget>[
-            _GoogleSignInSection(),
-            _PhoneSignInSection(Scaffold.of(context)),
-          ],
-        );
-      }),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        _PhoneSignInSection(Scaffold.of(context)),
+      ],
     );
   }
 
@@ -91,85 +36,6 @@ class SignInPageState extends State<SignInPage> {
   void _signOut() async {
     await _auth.signOut();
     await prefs.remove('id');
-  }
-}
-
-class _GoogleSignInSection extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _GoogleSignInSectionState();
-}
-
-class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
-  bool _success;
-  String _userID;
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Container(
-          child: const Text('Test sign in with Google'),
-          padding: const EdgeInsets.all(16),
-          alignment: Alignment.center,
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          alignment: Alignment.center,
-          child: RaisedButton(
-            onPressed: () async {
-              _signInWithGoogle();
-            },
-            child: const Text('Sign in with Google'),
-          ),
-        ),
-        Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            _success == null
-                ? ''
-                : (_success
-                    ? 'Successfully signed in'
-                    : 'Sign in failed'),
-            style: TextStyle(color: Colors.red),
-          ),
-        )
-      ],
-    );
-  }
-
-  // Example code of how to sign in with google.
-  void _signInWithGoogle() async {
-    final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-    final FirebaseUser user =
-        (await _auth.signInWithCredential(credential)).user;
-    assert(user.email != null);
-    assert(user.displayName != null);
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
-
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
-    prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      if (user != null) {
-        _success = true;
-        _userID = user.uid;
-        prefs.setString("id", user.uid);
-        Navigator.pushNamed(
-          context,
-          '/chats', //userId: prefs.getString("id")
-        );
-      } else {
-        _success = false;
-      }
-    });
   }
 }
 
@@ -191,23 +57,21 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          child: const Text('Test sign in with phone number'),
-          padding: const EdgeInsets.all(16),
           alignment: Alignment.center,
-        ),
-        TextFormField(
-          controller: _phoneNumberController,
-          decoration: const InputDecoration(
-              labelText: 'Phone number (+x xxx-xxx-xxxx)'),
-          validator: (String value) {
-            if (value.isEmpty) {
-              return 'Phone number (+x xxx-xxx-xxxx)';
-            }
-            return null;
-          },
+          width: 2 * MediaQuery.of(context).size.width/3,
+          child: TextFormField(
+            controller: _phoneNumberController,
+            decoration: const InputDecoration(
+                labelText: 'Phone number (+x xxx-xxx-xxxx)'),
+            validator: (String value) {
+              if (value.isEmpty) {
+                return 'Phone number (+x xxx-xxx-xxxx)';
+              }
+              return null;
+            },
+          ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -216,32 +80,10 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
             onPressed: () async {
               _verifyPhoneNumber();
             },
-            child: const Text('Verify phone number'),
+            child: const Text('Go'),
           ),
         ),
-        TextField(
-          controller: _smsController,
-          decoration: const InputDecoration(labelText: 'Verification code'),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          alignment: Alignment.center,
-          child: RaisedButton(
-            onPressed: () async {
-              _signInWithPhoneNumber();
-            },
-            child: const Text('Sign in with phone number'),
-          ),
-        ),
-        Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            _message,
-            style: TextStyle(color: Colors.red),
-          ),
-        )
-      ],
+      ]
     );
   }
 
@@ -252,9 +94,12 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
     });
     final PhoneVerificationCompleted verificationCompleted =
         (AuthCredential phoneAuthCredential) {
-      _auth.signInWithCredential(phoneAuthCredential);
+      _auth.signInWithCredential(phoneAuthCredential).then((AuthResult value) => {
+        authenticationSuccessful(value.user)
+      });
+
       setState(() {
-        _message = 'Received phone auth credential: $phoneAuthCredential';
+        
       });
     };
 
@@ -285,7 +130,8 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
         verificationCompleted: verificationCompleted,
         verificationFailed: verificationFailed,
         codeSent: codeSent,
-        codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
+        codeAutoRetrievalTimeout: codeAutoRetrievalTimeout
+      );
   }
 
   // Example code of how to sign in with phone.
@@ -294,16 +140,53 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
       verificationId: _verificationId,
       smsCode: _smsController.text,
     );
+    
     final FirebaseUser user =
         (await _auth.signInWithCredential(credential)).user;
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
-    setState(() {
-      if (user != null) {
-        _message = 'Successfully signed in, uid: ' + user.uid;
-      } else {
-        _message = 'Sign in failed';
-      }
-    });
+    authenticationSuccessful(user);
+  }
+
+  void authenticationSuccessful(FirebaseUser user){
+    if (user != null) {
+      Navigator.pushNamed(context, '/chats');
+    } else {
+      _message = 'Sign in failed'; //todo change to toast 
+    }  
   }
 }
+
+// Verification Code
+// Container(
+//           padding: const EdgeInsets.symmetric(vertical: 16.0),
+//           alignment: Alignment.center,
+//           child: RaisedButton(
+//             onPressed: () async {
+//               _verifyPhoneNumber();
+//             },
+//             child: const Text('Verify phone number'),
+//           ),
+//         ),
+//         TextField(
+//           controller: _smsController,
+//           decoration: const InputDecoration(labelText: 'Verification code'),
+//         ),
+//         Container(
+//           padding: const EdgeInsets.symmetric(vertical: 16.0),
+//           alignment: Alignment.center,
+//           child: RaisedButton(
+//             onPressed: () async {
+//               _signInWithPhoneNumber();
+//             },
+//             child: const Text('Sign in with phone number'),
+//           ),
+//         ),
+//         Container(
+//           alignment: Alignment.center,
+//           padding: const EdgeInsets.symmetric(horizontal: 16),
+//           child: Text(
+//             _message,
+//             style: TextStyle(color: Colors.red),
+//           ),
+//         )

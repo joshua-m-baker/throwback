@@ -17,7 +17,7 @@ class _ContactPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context){
-    return buildContactsList();
+    return Scaffold(body: buildContactsList(),);
   }
 
   Widget buildContactsList(){

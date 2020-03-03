@@ -16,14 +16,30 @@ class SignInPage extends StatefulWidget {
 
 class SignInPageState extends State<SignInPage> {
 
+  bool loading = true;
+  FirebaseUser user;
+
   @override
   void initState() {
     super.initState();
+    alreadySignedIn();
+  }
+
+  void alreadySignedIn() async {
+    user = await _auth.currentUser();
+
+    if (user != null){
+      Navigator.pushReplacementNamed(context, '/chats');
+    }
+
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return loading ? CircularProgressIndicator() : Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[

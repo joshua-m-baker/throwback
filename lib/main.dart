@@ -11,6 +11,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class MyApp extends StatelessWidget {
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -32,24 +33,26 @@ class MyApp extends StatelessWidget {
       },
       home: Scaffold(
         appBar: AppBar(title: Text("Throwback"),),
-        body: Center(
-          child: FutureBuilder<FirebaseUser> (
-            //future: _googleSignIn.isSignedIn(),
-            future: _auth.currentUser(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.connectionState == ConnectionState.done){
-                if (snapshot.data != null){
-                  print("Snapshot data");
-                  print(snapshot.data);
-                  return ContactsPage();
-                } 
-                return SignInPage();
-              } else {
-                return new CircularProgressIndicator();
-              }
-            },
-          )
-        ,)
+        body: SignInPage()
+        
+      //   Center(
+      //     child: FutureBuilder<FirebaseUser> (
+      //       //future: _googleSignIn.isSignedIn(),
+      //       future: _auth.currentUser(),
+      //       builder: (BuildContext context, AsyncSnapshot snapshot) {
+      //         if (snapshot.connectionState == ConnectionState.done){
+      //           if (snapshot.data != null){
+      //             print("Snapshot data");
+      //             print(snapshot.data);
+      //             return ContactsPage();
+      //           } 
+      //           return SignInPage();
+      //         } else {
+      //           return new CircularProgressIndicator();
+      //         }
+      //       },
+      //     )
+      //   ,)
       ,)
     );
   }

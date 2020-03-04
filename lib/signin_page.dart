@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:throwback/contacts_page.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
-
-SharedPreferences prefs;
 
 class SignInPage extends StatefulWidget {
   final String title = 'Login';
@@ -29,7 +27,7 @@ class SignInPageState extends State<SignInPage> {
     user = await _auth.currentUser();
 
     if (user != null){
-      Navigator.pushReplacementNamed(context, '/chats');
+      Navigator.pushReplacementNamed(context, '/chats', arguments: user);
     }
 
     setState(() {
@@ -39,26 +37,23 @@ class SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    return loading ? CircularProgressIndicator() : Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        _PhoneSignInSection(Scaffold.of(context)),
-      ],
+    return loading ? CircularProgressIndicator() : 
+    
+    Scaffold(
+      body:Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          _PhoneSignInSection(),
+        ],
+      )
     );
-  }
-
-  // Example code for sign out.
-  void _signOut() async {
-    await _auth.signOut();
-    await prefs.remove('id');
   }
 }
 
 class _PhoneSignInSection extends StatefulWidget {
-  _PhoneSignInSection(this._scaffold);
+  _PhoneSignInSection();
 
-  final ScaffoldState _scaffold;
   @override
   State<StatefulWidget> createState() => _PhoneSignInSectionState();
 }
@@ -129,9 +124,10 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
 
     final PhoneCodeSent codeSent =
         (String verificationId, [int forceResendingToken]) async {
-      widget._scaffold.showSnackBar(const SnackBar(
-        content: Text('Please check your phone for the verification code.'),
-      ));
+      // widget._scaffold.showSnackBar(const SnackBar(
+      //   content: Text('Please check your phone for the verification code.'),
+      // ));
+      print('Please check your phone for the verification code.');
       _verificationId = verificationId;
     };
 
@@ -166,10 +162,18 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
 
   void authenticationSuccessful(FirebaseUser user){
     if (user != null) {
-      Navigator.pushNamed(context, '/chats');
+      Firestore.instance.collection('users').document(user.uid).setData({
+        'number': _smsController.text,
+        'name': 'DisplayName'
+      }, merge: true);
+      Navigator.pushReplacementNamed(context, '/chats', arguments: user);
     } else {
       _message = 'Sign in failed'; //todo change to toast 
     }  
+  }
+
+  void registerNewUser(String name, String number){
+
   }
 }
 

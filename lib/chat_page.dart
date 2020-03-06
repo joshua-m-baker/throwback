@@ -214,39 +214,43 @@ class _ChatPageState extends State<ChatPage> {
         Container(
           child: FlatButton(
             child: Material(
-              child: CachedNetworkImage(
-                placeholder: (context, url) => Container(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              child: Hero(child: 
+                CachedNetworkImage(
+                  placeholder: (context, url) => Container(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                    width: 200.0,
+                    height: 200.0,
+                    padding: EdgeInsets.all(70.0),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8.0),
+                      ),
+                    ),
                   ),
-                  width: 200.0,
-                  height: 200.0,
-                  padding: EdgeInsets.all(70.0),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
+                  errorWidget: (context, url, error) => Material(
+                    child: Text("Error getting image"),
+                    // Image.asset(
+                    //   'images/img_not_available.jpeg',
+                    //   width: 200.0,
+                    //   height: 200.0,
+                    //   fit: BoxFit.cover,
+                    // ),
                     borderRadius: BorderRadius.all(
                       Radius.circular(8.0),
                     ),
+                    clipBehavior: Clip.hardEdge,
                   ),
+                  imageUrl: document['content'],
+                  width: 200.0,
+                  height: 200.0,
+                  fit: BoxFit.cover,
                 ),
-                errorWidget: (context, url, error) => Material(
-                  child: Text("Error getting image"),
-                  // Image.asset(
-                  //   'images/img_not_available.jpeg',
-                  //   width: 200.0,
-                  //   height: 200.0,
-                  //   fit: BoxFit.cover,
-                  // ),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(8.0),
-                  ),
-                  clipBehavior: Clip.hardEdge,
-                ),
-                imageUrl: document['content'],
-                width: 200.0,
-                height: 200.0,
-                fit: BoxFit.cover,
+                tag: 'pic'
               ),
+
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
               clipBehavior: Clip.hardEdge,
             ),

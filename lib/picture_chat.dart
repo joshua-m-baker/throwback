@@ -5,11 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 
 class PictureChat extends StatefulWidget {
-
-  // final String myId;
-  // final String peerId;
-  // final String peerName;
-
+  
   final String chatId;
   final String imageLink;
 
@@ -24,12 +20,33 @@ class _PictureChatStaate extends State<PictureChat>{
   
   @override
   Widget build(BuildContext context) {
-    return 
-        
+    return Scaffold(
+      appBar: AppBar(),
+      body: Column(
+      children: <Widget>[
+        Container(
+          child: Hero(
+            child: buildImage(),
+            tag: 'pic',
+          )
+        ),
+        Expanded(
+          child: SizedBox(
+            child: 
+              ListView.builder(
+                padding: EdgeInsets.all(10.0),
+                itemBuilder: (context, index) => Text(index.toString()),
+                itemCount: 100,
+              ),
+          height: 500,
+          ) 
+        ,)
+      ],)
+    ,);        
   }
 
   CachedNetworkImage buildImage(){
-    CachedNetworkImage(
+    return CachedNetworkImage(
         placeholder: (context, url) => Container(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),

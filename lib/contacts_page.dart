@@ -87,7 +87,7 @@ class _ContactPageState extends State<ContactsPage> {
                         Navigator.pushNamed(
                           context, 
                           Routes.chat_page,
-                          arguments: ChatArgs(widget.user.uid, contactsList[index].documentID)
+                          arguments: ChatArgs(widget.user.uid, contactsList[index].documentID, contactsList[index]['name'])
                         );
                       },
                     );

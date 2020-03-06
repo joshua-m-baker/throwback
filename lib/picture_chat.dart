@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 
 class PictureChat extends StatefulWidget {
-  
+
   final String chatId;
   final String imageLink;
 
@@ -27,7 +27,7 @@ class _PictureChatStaate extends State<PictureChat>{
         Container(
           child: Hero(
             child: buildImage(),
-            tag: 'pic',
+            tag: widget.imageLink,
           )
         ),
         Expanded(

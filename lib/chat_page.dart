@@ -96,11 +96,25 @@ class _ChatPageState extends State<ChatPage> {
           Column(
             children: <Widget>[
               buildMessages(),
-              buildInput(),
+              // buildInput(),
             ],
           ),
           buildLoading(),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: getImage,
+        child: Icon(Icons.add_photo_alternate),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[IconButton(icon: Icon(Icons.camera_alt),)],
+        ),
+        color: Colors.blueGrey
       ),
     );
   }
@@ -113,7 +127,7 @@ class _ChatPageState extends State<ChatPage> {
           .document(chatId)
           .collection(chatId)
           .orderBy('timestamp', descending: true)
-          .limit(20).snapshots(), 
+          .limit(5).snapshots(), 
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(
@@ -132,49 +146,6 @@ class _ChatPageState extends State<ChatPage> {
           }
         }
       )
-    );
-  }
-  
-  Widget buildInput(){
-    return Container(
-      child: Row(
-        children: <Widget>[
-          Material(
-            child: new Container(
-              margin: new EdgeInsets.symmetric(horizontal: 1.0),
-              child: new IconButton(
-                icon: new Icon(Icons.image),
-                onPressed: getImage,
-                color: Colors.red,
-              ),
-            ),
-            color: Colors.white,
-          ),
-          Flexible(
-              child: Container(
-                child: TextField(
-                  style: TextStyle(color: Colors.red, fontSize: 15.0),
-                  controller: textEditingController,
-                  decoration: InputDecoration.collapsed(
-                    hintText: 'Type your message...',
-                    hintStyle: TextStyle(color: Colors.grey),
-                  ),
-                  focusNode: focusNode,
-                ),
-              ),
-            ),
-          Material(
-            child: new Container(
-              margin: EdgeInsets.symmetric(horizontal: 8.0),
-              child: IconButton(
-                icon: new Icon(Icons.send),
-                color: Colors.red,
-                onPressed: () => onSendMessage(textEditingController.text, 0),
-              ),
-            )
-          )
-        ],
-        ),
     );
   }
 
@@ -248,7 +219,7 @@ class _ChatPageState extends State<ChatPage> {
                   height: 200.0,
                   fit: BoxFit.cover,
                 ),
-                tag: 'pic'
+                tag: document['content']
               ),
 
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -271,7 +242,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future getImage() async {
-    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
 
     if (imageFile != null) {
       setState(() {

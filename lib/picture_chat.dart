@@ -21,7 +21,7 @@ class _PictureChatStaate extends State<PictureChat>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text(widget.pictureMessage.title),),
       body: Column(
       children: <Widget>[ //change 
         Container( 

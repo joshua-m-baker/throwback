@@ -31,7 +31,8 @@ class _ChatPageState extends State<ChatPage> {
   String chatId;
   var messagesList;
   bool isLoading = false;
-  bool uploadingImage = false;
+  bool _isSendingMessage = false;
+  StorageUploadTask _uploadTask;
 
   @override
   void initState(){
@@ -78,15 +79,12 @@ class _ChatPageState extends State<ChatPage> {
             'url': image_url,
             'title': title,
             'description': description
-
-            // 'fromId': widget.myId,
-            // 'toId': widget.peerId,
-            // 'timestamp': DateTime.now(),
-            // 'content': content,
           },
         );
     listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
-    setState(() {});
+    setState(() {
+      _isSendingMessage = false;
+    });
     }
   }
 
@@ -111,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: getImage,
+        onPressed: createNewMessage,
         child: Icon(Icons.add_photo_alternate),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -213,7 +211,6 @@ class _ChatPageState extends State<ChatPage> {
               clipBehavior: Clip.hardEdge,
             ),
             onPressed: () {
-              print("Show photo");
               Navigator.pushNamed(context, Routes.picture_chat, arguments: PictureChatArgs(message));
             },
             padding: EdgeInsets.all(0),
@@ -226,34 +223,86 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Future getImage() async {
-    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+  
 
+  Future createNewMessage() async {
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
     if (imageFile != null) {
-      setState(() {
-        isLoading = true;
-      });
-      uploadFile(imageFile);
+      _showSendDialog(imageFile);
     }
   }
 
-  Future uploadFile(File imageFile) async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putFile(imageFile);
-    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+  void _showSendDialog(File image) {
+    TextEditingController _titleController = TextEditingController();
+    TextEditingController _descriptionController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context){
+        return AlertDialog( //TODO wrap in will pop
+          actions: <Widget>[
+            FlatButton(child: Text("Cancel"), onPressed: () {
+              Navigator.of(context).pop();
+            } ),
+            Container(
+              child: _isSendingMessage ? Container() : FlatButton(child: Icon(Icons.send), onPressed: () { 
+              sendMessage(image, _titleController.text.trim(), _descriptionController.text.trim()); 
+              }),
+            ),
+          ],
+          title: Text('Send'),
+          content: Column(
+            children: <Widget>[
+              Image.file(image),
+              TextField(
+                decoration: InputDecoration(hintText: "Title"),
+                controller: _titleController,
+              ),
+              TextField(
+                decoration: InputDecoration(hintText: "Description"),
+                controller: _descriptionController,
+              ),
+            ],
+          )
+        );
+      }
+    );
+  }
+
+  void sendMessage(File imageFile, String title, String description) async {
+    setState(() {
+      _isSendingMessage = true;
+      _uploadTask = uploadFile(imageFile);
+    });
+    StorageTaskSnapshot storageTaskSnapshot = await _uploadTask.onComplete;
+    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) { // maybe move to cloud functions
       setState(() {
-        isLoading = false;
-        onSendMessage(downloadUrl, '', '');
+        onSendMessage(downloadUrl, title, description);
       });
     }, onError: (err) {
       setState(() {
-        isLoading = false;
+        _isSendingMessage = false;
+        print("Error sending message"); //todo toast
       });
-      //Fluttertoast.showToast(msg: 'This file is not an image');
-      print("This file is not an image");
     });
   }
 
+  StorageUploadTask uploadFile(File imageFile) {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = reference.putFile(imageFile);
+    return uploadTask;
+    //StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+    //return storageTaskSnapshot.ref.getDownloadURL();
+    // storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+    //   setState(() {
+    //     isLoading = false;
+    //     onSendMessage(downloadUrl, '', '');
+    //   });
+    // }, onError: (err) {
+    //   setState(() {
+    //     isLoading = false;
+    //   });
+      //Fluttertoast.showToast(msg: 'This file is not an image');
+      //print("This file is not an image");
+  }
 }

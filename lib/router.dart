@@ -6,6 +6,18 @@ import 'package:throwback/picture_chat.dart';
 import 'package:throwback/signin_page.dart';
 import 'constants.dart';
 
+class PictureChatMessage{
+  String messageId;
+  String fromId;
+  String toId;
+  int timestamp;
+  String url;
+  String title;
+  String description;
+
+  PictureChatMessage(this.messageId, this.fromId, this.toId, this.timestamp, this.url, this.title, this.description);
+}
+
 class ChatArgs{
   final String myId;
   final String peerId; 
@@ -15,10 +27,9 @@ class ChatArgs{
 }
 
 class PictureChatArgs{
-  final String chatId;
-  final String imageLink;
+  final PictureChatMessage message;
 
-  PictureChatArgs(this.chatId, this.imageLink);
+  PictureChatArgs(this.message);
 }
 
 Route<dynamic> generateRoute(RouteSettings settings) {
@@ -35,7 +46,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       break;
     case Routes.picture_chat:
       PictureChatArgs args = settings.arguments;
-      return MaterialPageRoute(builder: (context) => PictureChat(chatId: args.chatId, imageLink: args.imageLink,));
+      return MaterialPageRoute(builder: (context) => PictureChat(pictureMessage: args.message));
       break;
   };
 }

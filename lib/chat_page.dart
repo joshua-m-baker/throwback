@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:throwback/picture_chat.dart';
+import 'send_dialog.dart';
 
 import 'constants.dart';
 import 'router.dart';
@@ -63,7 +64,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  void onSendMessage(String image_url, String title, String description) {
+  void onSendMessage(String image_url, String title, String description) async {
     if (image_url.trim() != ''){
       //textEditingController.clear();
     
@@ -223,86 +224,15 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  
-
   Future createNewMessage() async {
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
     if (imageFile != null) {
-      _showSendDialog(imageFile);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return SendDialog(image: imageFile, sendMessage: this.onSendMessage);
+        }
+      );
     }
-  }
-
-  void _showSendDialog(File image) {
-    TextEditingController _titleController = TextEditingController();
-    TextEditingController _descriptionController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context){
-        return AlertDialog( //TODO wrap in will pop
-          actions: <Widget>[
-            FlatButton(child: Text("Cancel"), onPressed: () {
-              Navigator.of(context).pop();
-            } ),
-            Container(
-              child: _isSendingMessage ? Container() : FlatButton(child: Icon(Icons.send), onPressed: () { 
-              sendMessage(image, _titleController.text.trim(), _descriptionController.text.trim()); 
-              }),
-            ),
-          ],
-          title: Text('Send'),
-          content: Column(
-            children: <Widget>[
-              Image.file(image),
-              TextField(
-                decoration: InputDecoration(hintText: "Title"),
-                controller: _titleController,
-              ),
-              TextField(
-                decoration: InputDecoration(hintText: "Description"),
-                controller: _descriptionController,
-              ),
-            ],
-          )
-        );
-      }
-    );
-  }
-
-  void sendMessage(File imageFile, String title, String description) async {
-    setState(() {
-      _isSendingMessage = true;
-      _uploadTask = uploadFile(imageFile);
-    });
-    StorageTaskSnapshot storageTaskSnapshot = await _uploadTask.onComplete;
-    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) { // maybe move to cloud functions
-      setState(() {
-        onSendMessage(downloadUrl, title, description);
-      });
-    }, onError: (err) {
-      setState(() {
-        _isSendingMessage = false;
-        print("Error sending message"); //todo toast
-      });
-    });
-  }
-
-  StorageUploadTask uploadFile(File imageFile) {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putFile(imageFile);
-    return uploadTask;
-    //StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-    //return storageTaskSnapshot.ref.getDownloadURL();
-    // storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-    //   setState(() {
-    //     isLoading = false;
-    //     onSendMessage(downloadUrl, '', '');
-    //   });
-    // }, onError: (err) {
-    //   setState(() {
-    //     isLoading = false;
-    //   });
-      //Fluttertoast.showToast(msg: 'This file is not an image');
-      //print("This file is not an image");
   }
 }

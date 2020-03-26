@@ -2,15 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
+import 'router.dart';
 
 class PictureChat extends StatefulWidget {
 
-  final String chatId;
-  final String imageLink;
+  //final String chatId;
+  final PictureChatMessage pictureMessage;
 
   //ChatPage({Key key, @required this.myId, @required this.peerId, @required this.peerName}) : super(key: key);
-  PictureChat({Key key, @required this.chatId, @required this.imageLink }) : super(key: key);
+  PictureChat({Key key, @required this.pictureMessage }) : super(key: key);
 
   @override
   _PictureChatStaate createState() => _PictureChatStaate();
@@ -21,14 +21,14 @@ class _PictureChatStaate extends State<PictureChat>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text(widget.pictureMessage.title),),
       body: Column(
-      children: <Widget>[
-        Container(
+      children: <Widget>[ //change 
+        Container( 
           child: Hero(
             child: buildImage(),
-            tag: widget.imageLink,
-          )
+            tag: widget.pictureMessage.url
+          ),
         ),
         Expanded(
           child: SizedBox(
@@ -38,10 +38,11 @@ class _PictureChatStaate extends State<PictureChat>{
                 itemBuilder: (context, index) => Text(index.toString()),
                 itemCount: 100,
               ),
-          height: 500,
+            height: 500,
           ) 
         ,)
-      ],)
+        ]
+      ,)
     ,);        
   }
 
@@ -66,7 +67,7 @@ class _PictureChatStaate extends State<PictureChat>{
           ),
           clipBehavior: Clip.hardEdge,
         ),
-        imageUrl: widget.imageLink,
+        imageUrl: widget.pictureMessage.url,
         //width: 200.0,
         //height: 200.0,
         fit: BoxFit.contain,

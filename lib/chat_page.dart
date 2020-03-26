@@ -4,11 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'send_dialog.dart';
 
 import 'constants.dart';
 import 'router.dart';
+import 'new_message_dialog.dart';
 
 class ChatPage extends StatefulWidget {
 
@@ -60,29 +61,32 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  void onSendMessage(String content, int type) {
-    if (content.trim() != ''){
-      textEditingController.clear();
+  void onSendMessage(String image_url, String title, String description) async {
+    if (image_url.trim() != ''){
+      //textEditingController.clear();
     
      Firestore.instance
-      .collection('messages')
+      .collection('picture_chats') //messages
       .document(chatId)
       .collection(chatId)
       .add(
-            {
-              'fromId': widget.myId,
-              'toId': widget.peerId,
-              'timestamp': DateTime.now(),
-              'content': content,
-              'type': type
-            },
+          {
+            'fromId': widget.myId,
+            'toId': widget.peerId,
+            'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch,
+            'url': image_url,
+            'title': title,
+            'description': description
+          },
         );
     listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
-    setState(() {});
+    setState(() {
+      
+    });
     }
   }
 
-  bool newestMessage(int index, bool fromMe){ 
+  bool newestMessage(int index){ 
     return (index == 0);
   }
 
@@ -96,14 +100,13 @@ class _ChatPageState extends State<ChatPage> {
           Column(
             children: <Widget>[
               buildMessages(),
-              // buildInput(),
             ],
           ),
           buildLoading(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: getImage,
+        onPressed: createFileMessage,
         child: Icon(Icons.add_photo_alternate),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -111,8 +114,19 @@ class _ChatPageState extends State<ChatPage> {
         shape: CircularNotchedRectangle(),
         child: Row(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[IconButton(icon: Icon(Icons.camera_alt),)],
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.link),
+              onPressed: () {
+                createNewMessage(MessageType.url, context);
+              },
+            ), 
+            IconButton(
+              icon: Icon(Icons.camera_alt),
+              onPressed: createCameraMessage,
+            )
+          ],
         ),
         color: Colors.blueGrey
       ),
@@ -120,10 +134,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget buildMessages(){
+    //todo fetch more messages on top of scroll 
     return Flexible(
       child: StreamBuilder(
         stream: Firestore.instance
-          .collection("messages")
+          .collection("picture_chats")
           .document(chatId)
           .collection(chatId)
           .orderBy('timestamp', descending: true)
@@ -150,36 +165,15 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget buildMessage(index, DocumentSnapshot document){
-    bool fromMe = document["fromId"] == widget.myId;
-    int type = 0;
-    if (document.data.containsKey('type')){
-      print("type key found");
-      type = document['type'];
-    }
-    if (type == 0){
-      return buildTextMessage(document, fromMe, newestMessage(index, fromMe));
-    }
-    else{
-      return buildImageMessage(document, fromMe, newestMessage(index, fromMe));
-    }
-  }
-
-  Widget buildTextMessage(DocumentSnapshot document, bool rightAlign, bool isLast){
-    return Row(
-      children: <Widget>[
-        Container(
-          child: Text(document['content'], style: TextStyle(color:Colors.white)),
-          padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-          width: 200.0,
-          decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(8.0)),
-          margin: EdgeInsets.only(bottom: isLast ?  20.0 : 10.0, right: 10.0), //todo maybe add padding to input instead
-        )
-      ],
-      mainAxisAlignment: rightAlign ? MainAxisAlignment.end : MainAxisAlignment.start,
+    PictureChatMessage message = PictureChatMessage(
+      document['messageId'], 
+      document['fromId'], 
+      document['toId'], 
+      document['timestamp'], 
+      document['url'], 
+      document['title'], 
+      document['description']
     );
-  }
-
-  Widget buildImageMessage(DocumentSnapshot document, bool rightAlign, bool isLast){
     return Row(
       children: <Widget>[
         Container(
@@ -214,61 +208,48 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     clipBehavior: Clip.hardEdge,
                   ),
-                  imageUrl: document['content'],
-                  width: 200.0,
-                  height: 200.0,
+                  imageUrl: document['url'],
+                  width: 300.0, //mediaquery for screenwidth
+                  height: 300.0,
                   fit: BoxFit.cover,
                 ),
-                tag: document['content']
+                tag: document['url']
               ),
 
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
               clipBehavior: Clip.hardEdge,
             ),
             onPressed: () {
-              print("Show photo");
-              Navigator.pushNamed(context, Routes.picture_chat, arguments: PictureChatArgs(chatId, document['content']));
-              // Navigator.push(
-              //     context, MaterialPageRoute(builder: (context) => FullPhoto(url: document['content'])));
+              Navigator.pushNamed(context, Routes.picture_chat, arguments: PictureChatArgs(message));
             },
             padding: EdgeInsets.all(0),
           ),
-          margin: EdgeInsets.only(bottom: isLast ?  20.0 : 10.0, right: 10.0), //todo maybe add padding to input instead
+          margin: EdgeInsets.only(bottom: newestMessage(index) ? 20.0 : 10.0, right: 10.0), //todo maybe add padding to input instead
 
         )
       ],
-      mainAxisAlignment: rightAlign ? MainAxisAlignment.end : MainAxisAlignment.start,
+      mainAxisAlignment: message.fromId == widget.myId ? MainAxisAlignment.end : MainAxisAlignment.start,
     );
   }
 
-  Future getImage() async {
+  void createFileMessage() async {
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    launchMessageDialog(imageFile);
+  }
 
+  void createCameraMessage() async {
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.camera, imageQuality: 70);
+    launchMessageDialog(imageFile);
+  }
+
+  void launchMessageDialog(File imageFile){
     if (imageFile != null) {
-      setState(() {
-        isLoading = true;
-      });
-      uploadFile(imageFile);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return SendDialog(image: imageFile, sendMessage: this.onSendMessage);
+        }
+      );
     }
   }
-
-  Future uploadFile(File imageFile) async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putFile(imageFile);
-    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-      setState(() {
-        isLoading = false;
-        onSendMessage(downloadUrl, 1);
-      });
-    }, onError: (err) {
-      setState(() {
-        isLoading = false;
-      });
-      //Fluttertoast.showToast(msg: 'This file is not an image');
-      print("This file is not an image");
-    });
-  }
-
 }

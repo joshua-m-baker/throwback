@@ -94,6 +94,10 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
             child: const Text('Go'),
           ),
         ),
+        Container(
+          alignment: Alignment.center,
+          child: Text(_message),
+        )
       ]
     );
   }

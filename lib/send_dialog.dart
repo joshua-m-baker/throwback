@@ -14,9 +14,6 @@ import 'router.dart';
 
 class SendDialog extends StatefulWidget {
 
-  // final String myId;
-  // final String peerId;
-  // final String peerName;
   Function sendMessage;
   File image;
 
@@ -49,7 +46,7 @@ class _SendDialogState extends State<SendDialog>{
   @override
   Widget build(BuildContext context){
     return WillPopScope(
-      child: sendDialog(widget.image), 
+      child: customDialog(widget.image), 
       onWillPop: _onWillPop
     );
   }
@@ -82,6 +79,54 @@ class _SendDialogState extends State<SendDialog>{
         ],
       ),
     )) ?? false;
+  }
+
+  Widget customDialog(File image) {
+    return Dialog(
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: 200,
+              width: double.infinity,
+              child: FittedBox(
+                child: Image(
+                  image: FileImage(image), 
+                ),
+                fit: BoxFit.fitWidth
+              ),
+            ),        
+            TextField(
+              decoration: InputDecoration(hintText: "Title"),
+              controller: _titleController,
+            ),
+            TextField(
+              decoration: InputDecoration(hintText: "Description"),
+              controller: _descriptionController,
+            ),
+            ButtonBar(
+              alignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                RaisedButton(child: Text("Cancel"), onPressed: () {
+                  _onWillPop().then(
+                    (result) {
+                      if (result) {
+                        Navigator.of(context).pop();
+                      }
+                    }
+                  );
+                }),
+                Container(
+                  child: _isSendingMessage ? CircularProgressIndicator() : FlatButton(child: Icon(Icons.send), onPressed: () { 
+                  sendMessage(image, _titleController.text.trim(), _descriptionController.text.trim()); 
+                  }),
+                ),
+              ],
+            )
+          ]
+        )
+      )
+    );
   }
 
 
@@ -139,10 +184,9 @@ class _SendDialogState extends State<SendDialog>{
   }
 
   StorageUploadTask uploadFile(File imageFile) {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    String fileName = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = reference.putFile(imageFile);
     return uploadTask; 
   }
-
 }

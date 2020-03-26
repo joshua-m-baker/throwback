@@ -4,13 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:throwback/picture_chat.dart';
 import 'send_dialog.dart';
 
 import 'constants.dart';
 import 'router.dart';
+import 'new_message_dialog.dart';
 
 class ChatPage extends StatefulWidget {
 
@@ -32,8 +31,6 @@ class _ChatPageState extends State<ChatPage> {
   String chatId;
   var messagesList;
   bool isLoading = false;
-  bool _isSendingMessage = false;
-  StorageUploadTask _uploadTask;
 
   @override
   void initState(){
@@ -84,7 +81,7 @@ class _ChatPageState extends State<ChatPage> {
         );
     listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     setState(() {
-      _isSendingMessage = false;
+      
     });
     }
   }
@@ -103,14 +100,13 @@ class _ChatPageState extends State<ChatPage> {
           Column(
             children: <Widget>[
               buildMessages(),
-              // buildInput(),
             ],
           ),
           buildLoading(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: createNewMessage,
+        onPressed: createFileMessage,
         child: Icon(Icons.add_photo_alternate),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -118,8 +114,19 @@ class _ChatPageState extends State<ChatPage> {
         shape: CircularNotchedRectangle(),
         child: Row(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[IconButton(icon: Icon(Icons.camera_alt),)],
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.link),
+              onPressed: () {
+                createNewMessage(MessageType.url, context);
+              },
+            ), 
+            IconButton(
+              icon: Icon(Icons.camera_alt),
+              onPressed: createCameraMessage,
+            )
+          ],
         ),
         color: Colors.blueGrey
       ),
@@ -127,6 +134,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget buildMessages(){
+    //todo fetch more messages on top of scroll 
     return Flexible(
       child: StreamBuilder(
         stream: Firestore.instance
@@ -224,8 +232,17 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Future createNewMessage() async {
+  void createFileMessage() async {
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    launchMessageDialog(imageFile);
+  }
+
+  void createCameraMessage() async {
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.camera, imageQuality: 70);
+    launchMessageDialog(imageFile);
+  }
+
+  void launchMessageDialog(File imageFile){
     if (imageFile != null) {
       showDialog(
         context: context,

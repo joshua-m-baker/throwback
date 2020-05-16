@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:throwback/chat_page.dart';
 import 'package:throwback/contacts_page.dart';
 import 'package:throwback/picture_chat.dart';
-import 'package:throwback/signin_page.dart';
+import 'package:throwback/home.dart';
 import 'constants.dart';
 
 class PictureChatMessage{
@@ -35,8 +35,10 @@ class PictureChatArgs{
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name){
     case Routes.root:
-      return MaterialPageRoute( builder: (context) => SignInPage());
-      break;
+      return MaterialPageRoute( builder: (context) => HomePage());
+
+      //return MaterialPageRoute( builder: (context) => SignInPage());
+      // break;
     case Routes.chats:
       return MaterialPageRoute(builder: (context) => ContactsPage(user: settings.arguments));
       break;

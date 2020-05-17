@@ -1,10 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:throwback/chat_page.dart';
-import 'package:throwback/contacts_page.dart';
+import 'package:throwback/chats_list.dart';
+import 'package:throwback/landing_page.dart';
 import 'package:throwback/picture_chat.dart';
-import 'package:throwback/home.dart';
-import 'constants.dart';
 
 class PictureChatMessage{
   String messageId;
@@ -32,15 +31,22 @@ class PictureChatArgs{
   PictureChatArgs(this.message);
 }
 
+class Routes {
+  static const String root = '/';
+  static const String chats_list = '/chats';
+  static const String new_chat = '/chats/add';
+  static const String chat_page = '/chats/chat';
+  static const String picture_chat = 'chats/chat/picture_chat';
+}
+
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name){
     case Routes.root:
-      return MaterialPageRoute( builder: (context) => HomePage());
-
+      return MaterialPageRoute( builder: (context) => LandingPage());
       //return MaterialPageRoute( builder: (context) => SignInPage());
       // break;
-    case Routes.chats:
-      return MaterialPageRoute(builder: (context) => ContactsPage(user: settings.arguments));
+    case Routes.chats_list:
+      return MaterialPageRoute(builder: (context) => ChatsListPage());
       break;
     case Routes.chat_page:
       ChatArgs args = settings.arguments;

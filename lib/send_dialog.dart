@@ -9,7 +9,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:throwback/picture_chat.dart';
 
-import 'constants.dart';
 import 'router.dart';
 
 class SendDialog extends StatefulWidget {

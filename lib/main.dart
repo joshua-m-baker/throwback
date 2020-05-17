@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:throwback/contacts_page.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:throwback/auth_model.dart';
 import 'router.dart';
-import 'constants.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class MyApp extends StatelessWidget {
 
@@ -47,5 +44,15 @@ class MyApp extends StatelessWidget {
 }
 
 void main(){
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final apiModel = ApiModel();
+  apiModel.signInSilently();
+
+  runApp(
+    ScopedModel<ApiModel>(
+      model: apiModel,
+      child: MyApp(),
+    )
+  );
 }

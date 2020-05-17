@@ -19,7 +19,6 @@ class ChatsListPage extends StatelessWidget {
                   child: const Text('Sign out'),
                   textColor: Theme.of(context).buttonColor,
                   onPressed: () async {
-                    // final FirebaseUser user = await _auth.currentUser();
 
                     if (apiModel.user == null) {
                       Scaffold.of(context).showSnackBar(const SnackBar(
@@ -27,16 +26,16 @@ class ChatsListPage extends StatelessWidget {
                       ));
                       return;
                     }
-                    apiModel.signOut().then((value) => Navigator.of(context).popUntil((route) => route.isFirst));
-                    // Navigator.pushAndRemoveUntil(context, newRoute, (route) => false)
-                    // Navigator.of(context).popUntil((route) => route.isFirst);
+                    print("Signing out");
+                    apiModel.signOut();
+                    Navigator.of(context).pushReplacementNamed(Routes.root);
                   },
                 );
                 }
               )
             ],
           ),
-          body: _buildContactsList(),
+          body: apiModel.isLoggedIn() ? _buildContactsList() : Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red))),
           floatingActionButton: FloatingActionButton(
             onPressed:(){}, //_newChat,
             child: Icon(Icons.add),
@@ -56,12 +55,16 @@ class ChatsListPage extends StatelessWidget {
                 //stream: Firestore.instance.collection('users').document(widget.user.uid).collection("contacts").limit(20).snapshots(), //delete this path
                 stream: apiModel.getContacts(),
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (!snapshot.hasData) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
                         child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red)));
-                  } else if (snapshot.hasError){
-                    return new Text('Error: ${snapshot.error}');
-                  } else {
+                  } else if (snapshot.connectionState == ConnectionState.none) { 
+                    return new Text("Connection state none");
+                  } else if (snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) {
+                    if (!apiModel.isLoggedIn()){
+                      return Center(
+                        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red)));
+                    }
                     var contactsList = snapshot.data.documents;
                     return ListView.builder(
                       padding: EdgeInsets.all(10.0),
@@ -80,6 +83,9 @@ class ChatsListPage extends StatelessWidget {
                       }
                     );
                   }
+                  else {
+                    return new Text('Error: Something went wrong');
+                  } 
                 }
               )
             )

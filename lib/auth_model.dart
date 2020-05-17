@@ -18,11 +18,18 @@ class ApiModel extends Model {
   // StreamSubscription auth_sub;
 
   ApiModel(){
-    _googleSignIn.onCurrentUserChanged.listen(_signInFirebase);
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account){
+      if (account != null) {
+        _signInFirebase(account);
+      } 
+      else {
+        _user = null;
+      }
+    });
 
     _auth.onAuthStateChanged.listen((FirebaseUser user) { 
       _user = user;
-      authenticating = true;
+      notifyListeners();
     });
   }
 
@@ -31,11 +38,9 @@ class ApiModel extends Model {
   }
 
   Future<bool> signInWithGoogle() async {
-    authenticating = true;
     final GoogleSignInAccount user = await _googleSignIn.signIn();
 
     if (user == null) {
-      authenticating = false;
 
       // User could not be signed in
       print('User could not be signed in.');
@@ -47,16 +52,12 @@ class ApiModel extends Model {
   }
 
   Future<void> signInSilently() async {
-    authenticating = true;
 
-    print(_user);
-
-    final GoogleSignInAccount user = await _googleSignIn.signInSilently();
+    final GoogleSignInAccount user = await _googleSignIn.signInSilently(suppressErrors: true);
 
     if (_user == null) {
       // User could not be signed in
       print("Issue signing in silently");
-      authenticating = false;
       return;
     }
     print(_user);
@@ -64,11 +65,13 @@ class ApiModel extends Model {
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
+    // _user = null;
     await _googleSignIn.signOut();  //   await _googleSignIn.disconnect();
+    await _auth.signOut();
   }
 
   Future<void> _signInFirebase(GoogleSignInAccount account) async {
+    // TODO logout handling
     if (await _auth.currentUser() == null){
       // final GoogleSignInAccount account = await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth = await account.authentication;

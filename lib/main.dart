@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
 
 void main(){
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final apiModel = ApiModel();
   apiModel.signInSilently();
 

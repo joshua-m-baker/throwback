@@ -7,39 +7,42 @@ import 'router.dart';
 class ChatsListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text("Contacts"),
-        // actions: <Widget>[
-        //   Builder(builder: (BuildContext context) {
-        //     return FlatButton(
-        //       child: const Text('Sign out'),
-        //       textColor: Theme.of(context).buttonColor,
-        //       onPressed: () async {
-        //         final FirebaseUser user = await _auth.currentUser();
-        //         if (user == null) {
-        //           Scaffold.of(context).showSnackBar(const SnackBar(
-        //             content: Text('No one has signed in.'),
-        //           ));
-        //           return;
-        //         }
-        //         _signOut();
-        //         final String uid = user.uid;
-        //         Scaffold.of(context).showSnackBar(SnackBar(
-        //           content: Text(uid + ' has successfully signed out.'),
-        //         ));
-        //       },
-        //     );
-        //     }
-        //   )
-        // ],
-      ),
-      body: _buildContactsList(),
-      floatingActionButton: FloatingActionButton(
-        onPressed:(){}, //_newChat,
-        child: Icon(Icons.add),
-      ),
+    return ScopedModelDescendant<ApiModel>(
+      builder: (BuildContext context, Widget child, ApiModel apiModel) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text("Contacts"),
+            actions: <Widget>[
+              Builder(builder: (BuildContext context) {
+                return FlatButton(
+                  child: const Text('Sign out'),
+                  textColor: Theme.of(context).buttonColor,
+                  onPressed: () async {
+                    // final FirebaseUser user = await _auth.currentUser();
+
+                    if (apiModel.user == null) {
+                      Scaffold.of(context).showSnackBar(const SnackBar(
+                        content: Text('No one has signed in.'),
+                      ));
+                      return;
+                    }
+                    apiModel.signOut().then((value) => Navigator.of(context).popUntil((route) => route.isFirst));
+                    // Navigator.pushAndRemoveUntil(context, newRoute, (route) => false)
+                    // Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                );
+                }
+              )
+            ],
+          ),
+          body: _buildContactsList(),
+          floatingActionButton: FloatingActionButton(
+            onPressed:(){}, //_newChat,
+            child: Icon(Icons.add),
+          ),
+        );
+      }
     );
   }
 

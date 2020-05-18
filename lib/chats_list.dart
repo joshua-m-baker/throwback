@@ -37,7 +37,9 @@ class ChatsListPage extends StatelessWidget {
           ),
           body: apiModel.isLoggedIn() ? _buildContactsList() : Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red))),
           floatingActionButton: FloatingActionButton(
-            onPressed:(){}, //_newChat,
+            onPressed:(){
+              _newChat(context, apiModel);
+            }, //_newChat,
             child: Icon(Icons.add),
           ),
         );
@@ -95,57 +97,38 @@ class ChatsListPage extends StatelessWidget {
     );
   }
 
-  // void _newChat() async{
-  //   TextEditingController _dialogTextController = TextEditingController();
-  //   showDialog(
-  //       context: context,
-  //       builder: (context) {
-  //         return AlertDialog(
-  //           title: Text('Search for users'),
-  //           content: TextField(
-  //             controller: _dialogTextController,
-  //             decoration: InputDecoration(hintText: "Phone Number"),
-  //             keyboardType: TextInputType.number
-  //           ),
-  //           actions: <Widget>[
-  //             new FlatButton(
-  //               child: new Text('Cancel'),
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //             new FlatButton(
-  //               child: new Text('Add'),
-  //               onPressed: () {
-  //                 //Firestore.instance.collection('users').document(widget.user.uid).collection('friends').document()
-  //                 Firestore
-  //                   .instance
-  //                   .collection('users')
-  //                   .where('number', isEqualTo: _dialogTextController.text)
-  //                   .getDocuments()
-  //                   .then(
-  //                     (value) {
-  //                       if (value.documents.isNotEmpty){
-  //                         // Add new friend
-  //                         // todo move to add function
-  //                         String friendId = value.documents[0].documentID;
-  //                         dynamic data = value.documents[0].data;
-  //                         print(friendId);
-  //                         print(data);
-  //                         Firestore.instance.collection('users').document(firebaseUser.uid).collection('friends').document(friendId).setData(data).then(
-  //                           (_){
-  //                             Navigator.of(context).pop();
-  //                           }
-  //                         );
-  //                       }
-  //                     }
-  //                   );
-  //               },
-  //             )
-  //           ],
-  //         );
-  //       }
-  //   );
-  // }
+  void _newChat(BuildContext context, ApiModel apiModel) async{
+    TextEditingController _dialogTextController = TextEditingController();
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Search for users'),
+            content: TextField(
+              controller: _dialogTextController,
+              decoration: InputDecoration(hintText: "Email"),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: new Text('Add'),
+                onPressed: () {
+                  //Firestore.instance.collection('users').document(widget.user.uid).collection('friends').document()
+                  apiModel.addFriend(_dialogTextController.text.trim()).then((value) {
+                    print(value);
+                    Navigator.of(context).pop();
+                  });
+                },
+              )
+            ],
+          );
+        }
+    );
+  }
 
 }

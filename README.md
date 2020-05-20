@@ -19,3 +19,4 @@ samples, guidance on mobile development, and a full API reference.
 - Uploadable Profile picture
 - Ios and Android
 - Change many widgets to stateless
+- Deleting old pictures

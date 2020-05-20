@@ -11,7 +11,7 @@ import 'package:throwback/models/picture_message.dart';
 import 'package:throwback/models/auth_model.dart';
 import 'package:throwback/models/contact.dart';
 
-import 'package:throwback/send_dialog.dart';
+import 'package:throwback/pages/send_dialog.dart';
 import 'package:throwback/util/router.dart';
 
 class ChatPage extends StatefulWidget {
@@ -206,13 +206,7 @@ class _ChatPageState extends State<ChatPage> {
       showDialog(
         context: context,
         builder: (context) {
-          // TODO pass in mostly empty PictureMessage, imageFile, have senddialog inherit scorddescednetn 
           return SendDialog(message: message);
-          //  , sendMessage: () {
-          //   ScopedModel.of<ApiModel>(context).sendMessage(message);
-          //  listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
-          //  setState(() {});
-          // });
         }
       );
     }

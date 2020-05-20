@@ -14,8 +14,6 @@ class ApiModel extends Model {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = new GoogleSignIn();
   
-  Firestore _db = Firestore.instance;
-
   FirebaseUser _user; 
   FirebaseUser get user => _user;
 
@@ -104,7 +102,7 @@ class ApiModel extends Model {
   }
 
   Stream<QuerySnapshot> getContacts(){
-    return _db.collection('users').document(_user.uid).collection("friends").limit(20).snapshots();
+    return Firestore.instance.collection('users').document(_user.uid).collection("friends").limit(20).snapshots();
   }
 
 
@@ -127,8 +125,6 @@ class ApiModel extends Model {
             return Firestore.instance.collection('users').document(_user.uid).collection('friends').document(friendId).setData(data).then(
               (value) => true, 
               onError: (error, stackTrace) {
-                print(error);
-                print(stackTrace);
                 return false;
               });
           }
@@ -157,7 +153,7 @@ class ApiModel extends Model {
 
   Future<bool> sendMessage(NewMessage message){
     Firestore.instance
-      .collection('picture_chats') //messages
+      .collection('picture_chats')
       .document(message.chatId)
       .collection('messages')
       .add(

@@ -191,7 +191,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void createImageMessage() async {
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-    NewMessage newMessage = new NewMessage(imageFile, null, ScopedModel.of<ApiModel>(context).user.uid, widget.peer.uid, widget.peer.chatId, '', '');
+    NewMessage newMessage = new NewMessage(imageFile, null, widget.peer.uid, widget.peer.chatId, '', '');
 
     launchMessageDialog(newMessage);
   }

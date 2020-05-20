@@ -162,7 +162,7 @@ class ApiModel extends Model {
       .collection('messages')
       .add(
           {
-            'fromId': message.fromId,
+            'fromId': _user.uid,
             'toId': message.toId,
             'chatId': message.chatId,
             'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch,

@@ -6,9 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:throwback/models.dart/picture_message.dart';
-
-import 'models.dart/new_message.dart';
+import 'package:throwback/models/new_message.dart';
 
 class ApiModel extends Model {
 

@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:throwback/models.dart/picture_message.dart';
-import 'router.dart';
+import 'package:throwback/models/picture_message.dart';
 
 class PictureChat extends StatefulWidget {
 

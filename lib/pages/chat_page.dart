@@ -6,14 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:throwback/models.dart/new_message.dart';
-import 'package:throwback/models.dart/picture_message.dart';
-import 'auth_model.dart';
-import 'models.dart/contact.dart';
-import 'send_dialog.dart';
+import 'package:throwback/models/new_message.dart';
+import 'package:throwback/models/picture_message.dart';
+import 'package:throwback/models/auth_model.dart';
+import 'package:throwback/models/contact.dart';
 
-import 'router.dart';
-import 'new_message_dialog.dart';
+import 'package:throwback/send_dialog.dart';
+import 'package:throwback/util/router.dart';
 
 class ChatPage extends StatefulWidget {
 

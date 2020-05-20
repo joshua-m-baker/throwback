@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:throwback/models.dart/new_message.dart';
-import 'package:throwback/picture_chat.dart';
-
-import 'auth_model.dart';
-import 'router.dart';
+import 'package:throwback/models/new_message.dart';
+import 'package:throwback/models/auth_model.dart';
 
 class SendDialog extends StatefulWidget {
 

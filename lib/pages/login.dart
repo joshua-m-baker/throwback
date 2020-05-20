@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:throwback/auth_model.dart';
-import 'router.dart';
+import 'package:throwback/models/auth_model.dart';
+import 'package:throwback/util/router.dart';
 
 
 class LoginPage extends StatelessWidget {

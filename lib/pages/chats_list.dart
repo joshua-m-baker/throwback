@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:throwback/auth_model.dart';
-import 'package:throwback/models.dart/contact.dart';
-import 'router.dart';
+import 'package:throwback/models/auth_model.dart';
+import 'package:throwback/models/contact.dart';
+import 'package:throwback/util/router.dart';
 
 class ChatsListPage extends StatelessWidget {
   @override

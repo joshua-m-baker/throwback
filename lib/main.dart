@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:throwback/auth_model.dart';
-import 'router.dart';
+
+import 'package:throwback/models/auth_model.dart';
+import 'package:throwback/util/router.dart';
 
 class MyApp extends StatelessWidget {
 
@@ -16,29 +17,6 @@ class MyApp extends StatelessWidget {
       ),
       onGenerateRoute: (RouteSettings settings) { return generateRoute(settings); },
       initialRoute: Routes.root,
-      // home: Scaffold(
-      //   appBar: AppBar(title: Text("Throwback"),),
-      //   body: SignInPage()
-        
-      //   Center(
-      //     child: FutureBuilder<FirebaseUser> (
-      //       //future: _googleSignIn.isSignedIn(),
-      //       future: _auth.currentUser(),
-      //       builder: (BuildContext context, AsyncSnapshot snapshot) {
-      //         if (snapshot.connectionState == ConnectionState.done){
-      //           if (snapshot.data != null){
-      //             print("Snapshot data");
-      //             print(snapshot.data);
-      //             return ContactsPage();
-      //           } 
-      //           return SignInPage();
-      //         } else {
-      //           return new CircularProgressIndicator();
-      //         }
-      //       },
-      //     )
-      //   ,)
-      // ,)
     );
   }
 }

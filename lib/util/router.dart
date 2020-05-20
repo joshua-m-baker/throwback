@@ -1,11 +1,13 @@
 
 import 'package:flutter/material.dart';
-import 'package:throwback/chat_page.dart';
-import 'package:throwback/chats_list.dart';
-import 'package:throwback/landing_page.dart';
-import 'package:throwback/models.dart/contact.dart';
-import 'package:throwback/models.dart/picture_message.dart';
-import 'package:throwback/picture_chat.dart';
+
+import 'package:throwback/models/picture_message.dart';
+import 'package:throwback/models/contact.dart';
+
+import 'package:throwback/pages/chat_page.dart';
+import 'package:throwback/pages/chats_list.dart';
+import 'package:throwback/pages/landing_page.dart';
+import 'package:throwback/pages/picture_chat.dart';
 
 class Routes {
   static const String root = '/';

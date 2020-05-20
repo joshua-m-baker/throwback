@@ -2,9 +2,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:throwback/auth_model.dart';
-import 'package:throwback/chats_list.dart';
-import 'package:throwback/login.dart';
+import 'package:throwback/models/auth_model.dart';
+import 'package:throwback/pages/chats_list.dart';
+import 'package:throwback/pages/login.dart';
 
 class LandingPage extends StatelessWidget {
   @override

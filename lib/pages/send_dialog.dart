@@ -107,7 +107,7 @@ class _SendDialogState extends State<SendDialog>{
                       _onWillPop().then(
                         (result) {
                           if (result) {
-                            Navigator.of(context).pop();
+                            Navigator.of(context).pop(false);
                           }
                         }
                       );
@@ -134,7 +134,7 @@ class _SendDialogState extends State<SendDialog>{
           _onWillPop().then(
             (result) {
               if (result) {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(false);
               }
             }
           );
@@ -175,7 +175,7 @@ class _SendDialogState extends State<SendDialog>{
       message.imageUrl = downloadUrl;
       ScopedModel.of<ApiModel>(context).sendMessage(message);
       _isSendingMessage = false;
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
     }, onError: (err) {
       setState(() {
         _isSendingMessage = false;

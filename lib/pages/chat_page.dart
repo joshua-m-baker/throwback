@@ -25,31 +25,14 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+
   final ScrollController listScrollController = new ScrollController();
-  final TextEditingController textEditingController = new TextEditingController();
-  final FocusNode focusNode = new FocusNode();
 
   var messagesList;
-  bool isLoading = false;
-
-
-  Widget buildLoading() {
-    return Positioned(
-      child: isLoading
-        ? Container(
-          child: Center(
-            child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red)),
-          ),
-          color: Colors.white.withOpacity(0.8),
-          )
-        : Container(),
-    );
-  }
 
   bool newestMessage(int index){ 
     return (index == 0);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +48,6 @@ class _ChatPageState extends State<ChatPage> {
                   buildMessages(context),
                 ],
               ),
-              buildLoading(),
             ],
           ),
           floatingActionButton: FloatingActionButton(
@@ -208,7 +190,12 @@ class _ChatPageState extends State<ChatPage> {
         builder: (context) {
           return SendDialog(message: message);
         }
-      );
+      ).then((value) {
+        if (value){
+          listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+          setState(() {});
+        }
+      });
     }
   }
 }

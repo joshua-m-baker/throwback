@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:throwback/models.dart/picture_message.dart';
+import 'package:throwback/auth_model.dart';
 
 // wrap in sending dialog widget
 // get image from wherever then move to send
@@ -12,9 +15,10 @@ enum MessageType{
 }
 
 Future createNewMessage(MessageType type, BuildContext context){
+
   switch(type){
     case MessageType.url: 
-      return _createUrlMessage(context);
+      return _createUrlMessage();
       break; 
     
     case MessageType.camera:
@@ -40,13 +44,14 @@ Future createNewMessage(MessageType type, BuildContext context){
     // }
   }
 
-  Future _createUrlMessage(BuildContext context) async{
+  Future _createUrlMessage() async{
     // todo fetch image from url and send
-    TextEditingController urlFieldController = TextEditingController();
-    return showDialog(
-      context: context,
-      child: urlDialog(urlFieldController, context)
-    ) ?? Future<void>.value();
+    // TextEditingController urlFieldController = TextEditingController();
+    // return showDialog(
+    //   context: context,
+    //   child: urlDialog(urlFieldController, context)
+    // ) ?? Future<void>.value();
+    return Future<void>.value();
   }
 
   Future _createCameraMessage() async{

@@ -7,16 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:throwback/models.dart/new_message.dart';
 import 'package:throwback/picture_chat.dart';
 
+import 'auth_model.dart';
 import 'router.dart';
 
 class SendDialog extends StatefulWidget {
 
-  Function sendMessage;
-  File image;
+  //Function sendMessage;
+  NewMessage message;
 
-  SendDialog({Key key, @required this.sendMessage, @required this.image}) : super(key: key);
+  SendDialog({Key key, @required this.message}) : super(key: key);
 
   @override
   _SendDialogState createState() => _SendDialogState();
@@ -39,13 +42,13 @@ class _SendDialogState extends State<SendDialog>{
     _isSendingMessage = false;
     _shouldDelete = true;
 
-    _uploadTask = uploadFile(widget.image);
+    _uploadTask = ScopedModel.of<ApiModel>(context).uploadFile(widget.message.imageFile);
   }
 
   @override
   Widget build(BuildContext context){
     return WillPopScope(
-      child: customDialog(widget.image), 
+      child: customDialog(widget.message), 
       onWillPop: _onWillPop
     );
   }
@@ -80,56 +83,59 @@ class _SendDialogState extends State<SendDialog>{
     )) ?? false;
   }
 
-  Widget customDialog(File image) {
-    return Dialog(
-      child: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: 200,
-              width: double.infinity,
-              child: FittedBox(
-                child: Image(
-                  image: FileImage(image), 
-                ),
-                fit: BoxFit.fitWidth
-              ),
-            ),        
-            TextField(
-              decoration: InputDecoration(hintText: "Title"),
-              controller: _titleController,
-            ),
-            TextField(
-              decoration: InputDecoration(hintText: "Description"),
-              controller: _descriptionController,
-            ),
-            ButtonBar(
-              alignment: MainAxisAlignment.spaceBetween,
+  Widget customDialog(NewMessage message) {
+    return ScopedModelDescendant<ApiModel>(
+      builder: (BuildContext context, Widget child, ApiModel apiModel) {    
+        return Dialog(
+          child: SingleChildScrollView(
+            child: Column(
               children: <Widget>[
-                RaisedButton(child: Text("Cancel"), onPressed: () {
-                  _onWillPop().then(
-                    (result) {
-                      if (result) {
-                        Navigator.of(context).pop();
-                      }
-                    }
-                  );
-                }),
                 Container(
-                  child: _isSendingMessage ? CircularProgressIndicator() : FlatButton(child: Icon(Icons.send), onPressed: () { 
-                  sendMessage(image, _titleController.text.trim(), _descriptionController.text.trim()); 
-                  }),
+                  height: 200,
+                  width: double.infinity,
+                  child: FittedBox(
+                    child: Image(
+                      image: FileImage(message.imageFile), 
+                    ),
+                    fit: BoxFit.fitWidth
+                  ),
+                ),        
+                TextField(
+                  decoration: InputDecoration(hintText: "Title"),
+                  controller: _titleController,
                 ),
-              ],
+                TextField(
+                  decoration: InputDecoration(hintText: "Description"),
+                  controller: _descriptionController,
+                ),
+                ButtonBar(
+                  alignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    RaisedButton(child: Text("Cancel"), onPressed: () {
+                      _onWillPop().then(
+                        (result) {
+                          if (result) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      );
+                    }),
+                    Container(
+                      child: _isSendingMessage ? CircularProgressIndicator() : FlatButton(child: Icon(Icons.send), onPressed: () { 
+                        sendMessage(message); 
+                      }),
+                    ),
+                  ],
+                )
+              ]
             )
-          ]
-        )
-      )
-    );
+          )
+        );
+      });
   }
 
 
-  Widget sendDialog(File image) {
+  Widget sendDialog(NewMessage message) {
     return AlertDialog( 
       actions: <Widget>[
         FlatButton(child: Text("Cancel"), onPressed: () {
@@ -143,14 +149,16 @@ class _SendDialogState extends State<SendDialog>{
         } ),
         Container(
           child: _isSendingMessage ? CircularProgressIndicator() : FlatButton(child: Icon(Icons.send), onPressed: () { 
-          sendMessage(image, _titleController.text.trim(), _descriptionController.text.trim()); 
+            message.title = _titleController.text.trim();
+            message.description = _descriptionController.text.trim();
+            sendMessage(message); 
           }),
         ),
       ],
       title: Text('Send'),
       content: Column(
         children: <Widget>[
-          Image.file(image),
+          Image.file(message.imageFile),
           TextField(
             decoration: InputDecoration(hintText: "Title"),
             controller: _titleController,
@@ -164,14 +172,16 @@ class _SendDialogState extends State<SendDialog>{
     );
   }
 
-  void sendMessage(File imageFile, String title, String description) async {
+  void sendMessage(NewMessage message) async {
     setState(() {
       _isSendingMessage = true;
     });
     StorageTaskSnapshot storageTaskSnapshot = await _uploadTask.onComplete;
     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) { // maybe move to cloud functions
       _shouldDelete = false; //don't want to delete the image from firebase if they confirmed sending it
-      widget.sendMessage(downloadUrl, title, description);
+      // widget.sendMessage(downloadUrl, title, description);
+      message.imageUrl = downloadUrl;
+      ScopedModel.of<ApiModel>(context).sendMessage(message);
       _isSendingMessage = false;
       Navigator.of(context).pop();
     }, onError: (err) {
@@ -180,12 +190,5 @@ class _SendDialogState extends State<SendDialog>{
         print("Error sending message"); //todo toast
       });
     });
-  }
-
-  StorageUploadTask uploadFile(File imageFile) {
-    String fileName = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putFile(imageFile);
-    return uploadTask; 
   }
 }

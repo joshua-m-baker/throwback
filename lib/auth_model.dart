@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:throwback/models.dart/picture_message.dart';
+
+import 'models.dart/new_message.dart';
 
 class ApiModel extends Model {
 
@@ -134,5 +139,39 @@ class ApiModel extends Model {
           }
         }
       );
+  }
+
+  Stream<QuerySnapshot> getChats(String chatId) {
+    return Firestore.instance
+      .collection("picture_chats")
+      .document(chatId)
+      .collection('messages')
+      .orderBy('timestamp', descending: true)
+      .limit(5).snapshots();
+  }
+
+  StorageUploadTask uploadFile(File imageFile) {
+    String fileName = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = reference.putFile(imageFile);
+    return uploadTask; 
+  }
+
+  Future<bool> sendMessage(NewMessage message){
+    Firestore.instance
+      .collection('picture_chats') //messages
+      .document(message.chatId)
+      .collection('messages')
+      .add(
+          {
+            'fromId': message.fromId,
+            'toId': message.toId,
+            'chatId': message.chatId,
+            'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch,
+            'url': message.imageUrl,
+            'title': message.title,
+            'description': message.description
+          },
+        );
   }
 }

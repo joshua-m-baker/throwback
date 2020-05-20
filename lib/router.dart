@@ -3,33 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:throwback/chat_page.dart';
 import 'package:throwback/chats_list.dart';
 import 'package:throwback/landing_page.dart';
+import 'package:throwback/models.dart/contact.dart';
+import 'package:throwback/models.dart/picture_message.dart';
 import 'package:throwback/picture_chat.dart';
-
-class PictureChatMessage{
-  String messageId;
-  String fromId;
-  String toId;
-  int timestamp;
-  String url;
-  String title;
-  String description;
-
-  PictureChatMessage(this.messageId, this.fromId, this.toId, this.timestamp, this.url, this.title, this.description);
-}
-
-class ChatArgs{
-  final String myId;
-  final String peerId; 
-  final String peerName;
-
-  ChatArgs(this.myId, this.peerId, this.peerName);
-}
-
-class PictureChatArgs{
-  final PictureChatMessage message;
-
-  PictureChatArgs(this.message);
-}
 
 class Routes {
   static const String root = '/';
@@ -49,12 +25,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => ChatsListPage());
       break;
     case Routes.chat_page:
-      ChatArgs args = settings.arguments;
-      return MaterialPageRoute(builder: (context) => ChatPage(myId: args.myId, peerId: args.peerId, peerName: args.peerName,));
+      Contact peer = settings.arguments;
+      return MaterialPageRoute(builder: (context) => ChatPage(peer: peer));
       break;
     case Routes.picture_chat:
-      PictureChatArgs args = settings.arguments;
-      return MaterialPageRoute(builder: (context) => PictureChat(pictureMessage: args.message));
+      PictureMessage message = settings.arguments;
+      return MaterialPageRoute(builder: (context) => PictureChat(pictureMessage: message));
       break;
   };
 }

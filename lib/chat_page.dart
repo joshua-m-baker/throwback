@@ -5,6 +5,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:throwback/models.dart/new_message.dart';
+import 'package:throwback/models.dart/picture_message.dart';
+import 'auth_model.dart';
+import 'models.dart/contact.dart';
 import 'send_dialog.dart';
 
 import 'router.dart';
@@ -12,11 +17,9 @@ import 'new_message_dialog.dart';
 
 class ChatPage extends StatefulWidget {
 
-  final String myId;
-  final String peerId;
-  final String peerName;
+  final Contact peer;
 
-  ChatPage({Key key, @required this.myId, @required this.peerId, @required this.peerName}) : super(key: key);
+  ChatPage({Key key, @required this.peer}) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -27,121 +30,80 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController textEditingController = new TextEditingController();
   final FocusNode focusNode = new FocusNode();
 
-  String chatId;
   var messagesList;
   bool isLoading = false;
 
-  @override
-  void initState(){
-    super.initState();
-    setState(() {
-      isLoading = true;
-    });
-    if (widget.myId.hashCode <= widget.peerId.hashCode) {
-      chatId = widget.myId + widget.peerId;
-    } else {
-      chatId = widget.peerId + widget.myId;
-    }
-    setState(() {
-      isLoading = false;
-    });
-  }
 
   Widget buildLoading() {
     return Positioned(
       child: isLoading
-          ? Container(
-              child: Center(
-                child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red)),
-              ),
-              color: Colors.white.withOpacity(0.8),
-            )
-          : Container(),
+        ? Container(
+          child: Center(
+            child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red)),
+          ),
+          color: Colors.white.withOpacity(0.8),
+          )
+        : Container(),
     );
-  }
-
-  void onSendMessage(String image_url, String title, String description) async {
-    if (image_url.trim() != ''){
-      //textEditingController.clear();
-    
-     Firestore.instance
-      .collection('picture_chats') //messages
-      .document(chatId)
-      .collection(chatId)
-      .add(
-          {
-            'fromId': widget.myId,
-            'toId': widget.peerId,
-            'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch,
-            'url': image_url,
-            'title': title,
-            'description': description
-          },
-        );
-    listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
-    setState(() {
-      
-    });
-    }
   }
 
   bool newestMessage(int index){ 
     return (index == 0);
   }
 
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: new Text(widget.peerName),),
-      backgroundColor: Colors.white,
-      body:Stack(
-        children: <Widget>[
-          Column(
+    return ScopedModelDescendant<ApiModel>(
+      builder: (BuildContext context, Widget child, ApiModel apiModel) {
+        return Scaffold(
+          appBar: AppBar(title: new Text(widget.peer.name),),
+          backgroundColor: Colors.white,
+          body:Stack(
             children: <Widget>[
-              buildMessages(),
+              Column(
+                children: <Widget>[
+                  buildMessages(context),
+                ],
+              ),
+              buildLoading(),
             ],
           ),
-          buildLoading(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: createFileMessage,
-        child: Icon(Icons.add_photo_alternate),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.link),
-              onPressed: () {
-                createNewMessage(MessageType.url, context);
-              },
-            ), 
-            IconButton(
-              icon: Icon(Icons.camera_alt),
-              onPressed: createCameraMessage,
-            )
-          ],
-        ),
-        color: Colors.blueGrey
-      ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: createImageMessage,
+            child: Icon(Icons.add_photo_alternate),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: BottomAppBar(
+            shape: CircularNotchedRectangle(),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.link),
+                  onPressed: () {
+                    // createNewMessage(MessageType.url, context); // TODO
+                  },
+                ), 
+                IconButton(
+                  icon: Icon(Icons.camera_alt),
+                  onPressed: () {} //createCameraMessage,
+                )
+              ],
+            ),
+            color: Colors.blueGrey
+          ),
+        );
+      }
     );
   }
 
-  Widget buildMessages(){
+  Widget buildMessages(BuildContext context){
     //todo fetch more messages on top of scroll 
     return Flexible(
       child: StreamBuilder(
-        stream: Firestore.instance
-          .collection("picture_chats")
-          .document(chatId)
-          .collection(chatId)
-          .orderBy('timestamp', descending: true)
-          .limit(5).snapshots(), 
+        stream: ScopedModel.of<ApiModel>(context).getChats(widget.peer.chatId), 
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(
@@ -152,7 +114,7 @@ class _ChatPageState extends State<ChatPage> {
             messagesList = snapshot.data.documents;
             return ListView.builder(
               padding: EdgeInsets.all(10.0),
-              itemBuilder: (context, index) => buildMessage(index, snapshot.data.documents[index]),
+              itemBuilder: (context, index) => buildMessage(context, index, snapshot.data.documents[index]),
               itemCount: snapshot.data.documents.length,
               reverse: true,
               controller: listScrollController,
@@ -163,16 +125,9 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget buildMessage(index, DocumentSnapshot document){
-    PictureChatMessage message = PictureChatMessage(
-      document['messageId'], 
-      document['fromId'], 
-      document['toId'], 
-      document['timestamp'], 
-      document['url'], 
-      document['title'], 
-      document['description']
-    );
+  Widget buildMessage(BuildContext context, index, DocumentSnapshot document){
+    PictureMessage message = PictureMessage.fromDocument(document);
+
     return Row(
       children: <Widget>[
         Container(
@@ -207,19 +162,23 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     clipBehavior: Clip.hardEdge,
                   ),
-                  imageUrl: document['url'],
+                  imageUrl: message.url,
                   width: 300.0, //mediaquery for screenwidth
                   height: 300.0,
                   fit: BoxFit.cover,
                 ),
-                tag: document['url']
+                tag: message.url
               ),
 
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
               clipBehavior: Clip.hardEdge,
             ),
             onPressed: () {
-              Navigator.pushNamed(context, Routes.picture_chat, arguments: PictureChatArgs(message));
+              Navigator.pushNamed(
+                context, 
+                Routes.picture_chat, 
+                arguments: message
+              );
             },
             padding: EdgeInsets.all(0),
           ),
@@ -227,26 +186,34 @@ class _ChatPageState extends State<ChatPage> {
 
         )
       ],
-      mainAxisAlignment: message.fromId == widget.myId ? MainAxisAlignment.end : MainAxisAlignment.start,
+      mainAxisAlignment: message.fromId == ScopedModel.of<ApiModel>(context).user.uid ? MainAxisAlignment.end : MainAxisAlignment.start,
     );
   }
 
-  void createFileMessage() async {
+  void createImageMessage() async {
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-    launchMessageDialog(imageFile);
+    NewMessage newMessage = new NewMessage(imageFile, null, ScopedModel.of<ApiModel>(context).user.uid, widget.peer.uid, widget.peer.chatId, '', '');
+
+    launchMessageDialog(newMessage);
   }
 
-  void createCameraMessage() async {
-    File imageFile = await ImagePicker.pickImage(source: ImageSource.camera, imageQuality: 70);
-    launchMessageDialog(imageFile);
-  }
+  // void createCameraMessage() async {
+  //   File imageFile = await ImagePicker.pickImage(source: ImageSource.camera, imageQuality: 70);
+  //   launchMessageDialog(imageFile);
+  // }
 
-  void launchMessageDialog(File imageFile){
-    if (imageFile != null) {
+  void launchMessageDialog(NewMessage message){
+    if (message.imageFile != null) {
       showDialog(
         context: context,
         builder: (context) {
-          return SendDialog(image: imageFile, sendMessage: this.onSendMessage);
+          // TODO pass in mostly empty PictureMessage, imageFile, have senddialog inherit scorddescednetn 
+          return SendDialog(message: message);
+          //  , sendMessage: () {
+          //   ScopedModel.of<ApiModel>(context).sendMessage(message);
+          //  listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+          //  setState(() {});
+          // });
         }
       );
     }

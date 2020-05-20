@@ -2,12 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:throwback/models.dart/picture_message.dart';
 import 'router.dart';
 
 class PictureChat extends StatefulWidget {
 
   //final String chatId;
-  final PictureChatMessage pictureMessage;
+  final PictureMessage pictureMessage;
 
   //ChatPage({Key key, @required this.myId, @required this.peerId, @required this.peerName}) : super(key: key);
   PictureChat({Key key, @required this.pictureMessage }) : super(key: key);

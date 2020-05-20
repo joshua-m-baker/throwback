@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:throwback/auth_model.dart';
+import 'package:throwback/models.dart/contact.dart';
 import 'router.dart';
 
 class ChatsListPage extends StatelessWidget {
@@ -39,7 +40,7 @@ class ChatsListPage extends StatelessWidget {
           floatingActionButton: FloatingActionButton(
             onPressed:(){
               _newChat(context, apiModel);
-            }, //_newChat,
+            },
             child: Icon(Icons.add),
           ),
         );
@@ -75,11 +76,12 @@ class ChatsListPage extends StatelessWidget {
                         return ListTile(
                           title: Text(contactsList[index]["name"]),
                           onTap: () { 
-                            // Navigator.pushNamed(
-                            //   context, 
-                            //   Routes.chat_page,
-                            //   arguments: ChatArgs(apiModel.user.uid, contactsList[index].documentID, contactsList[index]['name'])
-                            // );
+                            Navigator.pushNamed(
+                              context, 
+                              Routes.chat_page,
+                              arguments: Contact.fromDocument(apiModel.user.uid, contactsList[index])
+                              //ChatArgs(apiModel.user.uid, contactsList[index].documentID, contactsList[index]['name'])
+                            );
                           },
                         );
                       }

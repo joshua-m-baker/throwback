@@ -27,13 +27,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
 
   final ScrollController listScrollController = new ScrollController();
-
   var messagesList;
-
-  bool newestMessage(int index){ 
-    return false;
-    return (index == 0);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,26 +50,6 @@ class _ChatPageState extends State<ChatPage> {
             child: Icon(Icons.add_photo_alternate),
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-          // bottomNavigationBar: BottomAppBar(
-          //   shape: CircularNotchedRectangle(),
-          //   child: Row(
-          //     mainAxisSize: MainAxisSize.max,
-          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //     children: <Widget>[
-          //       // IconButton(
-          //       //   icon: Icon(Icons.link),
-          //       //   onPressed: () {
-          //       //     // createNewMessage(MessageType.url, context); // TODO
-          //       //   },
-          //       // ), 
-          //       // IconButton(
-          //       //   icon: Icon(Icons.camera_alt),
-          //       //   onPressed: () {} //createCameraMessage,
-          //       // )
-          //     ],
-          //   ),
-          //   color: Colors.blueGrey
-          // ),
         );
       }
     );
@@ -89,7 +63,8 @@ class _ChatPageState extends State<ChatPage> {
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(
-                child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red)));
+              child: CircularProgressIndicator()
+            );
           } else if (snapshot.hasError){
             return new Text('Error: ${snapshot.error}');
           } else {
@@ -109,7 +84,6 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget buildMessage(BuildContext context, index, DocumentSnapshot document){
     PictureMessage message = PictureMessage.fromDocument(document);
-    // FractionallySizedBox
     return Row(
       children: <Widget>[
         Flexible(
@@ -123,8 +97,6 @@ class _ChatPageState extends State<ChatPage> {
                       placeholder: (context, url) => CircularProgressIndicator(),
                       errorWidget: (context, url, error) => Icon(Icons.error),
                       imageUrl: message.url,
-                      //width: 300.0, //mediaquery for screenwidth
-                      //height: 300.0,
                       fit: BoxFit.cover,
                     ),
                     tag: message.url
@@ -142,8 +114,7 @@ class _ChatPageState extends State<ChatPage> {
                 },
                 padding: EdgeInsets.all(0),
               ),
-              margin: EdgeInsets.only(bottom: newestMessage(index) ? 20.0 : 10.0, right: 10.0), //todo maybe add padding to input instead
-
+              margin: EdgeInsets.only(bottom: 10.0), //todo maybe add padding to input instead
             ),
           ),
         )
@@ -154,29 +125,22 @@ class _ChatPageState extends State<ChatPage> {
 
   void createImageMessage() async {
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-    NewMessage newMessage = new NewMessage(imageFile, null, widget.peer.uid, widget.peer.chatId, '', '');
-
-    launchMessageDialog(newMessage);
-  }
-
-  // void createCameraMessage() async {
-  //   File imageFile = await ImagePicker.pickImage(source: ImageSource.camera, imageQuality: 70);
-  //   launchMessageDialog(imageFile);
-  // }
-
-  void launchMessageDialog(NewMessage message){
-    if (message.imageFile != null) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return SendDialog(message: message);
-        }
-      ).then((value) {
-        if (value){
-          listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
-          setState(() {});
-        }
-      });
+    if (imageFile == null) {
+      return;
     }
+
+    NewMessage newMessage = new NewMessage(imageFile, null, widget.peer.uid, widget.peer.chatId, '', '');
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SendDialog(message: newMessage);
+      }
+    ).then((value) {
+      if (value){
+        listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+        setState(() {});
+      }
+    });
   }
 }

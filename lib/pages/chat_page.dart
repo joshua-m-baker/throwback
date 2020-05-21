@@ -31,6 +31,7 @@ class _ChatPageState extends State<ChatPage> {
   var messagesList;
 
   bool newestMessage(int index){ 
+    return false;
     return (index == 0);
   }
 
@@ -54,27 +55,27 @@ class _ChatPageState extends State<ChatPage> {
             onPressed: createImageMessage,
             child: Icon(Icons.add_photo_alternate),
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-          bottomNavigationBar: BottomAppBar(
-            shape: CircularNotchedRectangle(),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.link),
-                  onPressed: () {
-                    // createNewMessage(MessageType.url, context); // TODO
-                  },
-                ), 
-                IconButton(
-                  icon: Icon(Icons.camera_alt),
-                  onPressed: () {} //createCameraMessage,
-                )
-              ],
-            ),
-            color: Colors.blueGrey
-          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          // bottomNavigationBar: BottomAppBar(
+          //   shape: CircularNotchedRectangle(),
+          //   child: Row(
+          //     mainAxisSize: MainAxisSize.max,
+          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //     children: <Widget>[
+          //       // IconButton(
+          //       //   icon: Icon(Icons.link),
+          //       //   onPressed: () {
+          //       //     // createNewMessage(MessageType.url, context); // TODO
+          //       //   },
+          //       // ), 
+          //       // IconButton(
+          //       //   icon: Icon(Icons.camera_alt),
+          //       //   onPressed: () {} //createCameraMessage,
+          //       // )
+          //     ],
+          //   ),
+          //   color: Colors.blueGrey
+          // ),
         );
       }
     );
@@ -94,7 +95,7 @@ class _ChatPageState extends State<ChatPage> {
           } else {
             messagesList = snapshot.data.documents;
             return ListView.builder(
-              padding: EdgeInsets.all(10.0),
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 65), //TODO better solution //EdgeInsets.all(10.0),
               itemBuilder: (context, index) => buildMessage(context, index, snapshot.data.documents[index]),
               itemCount: snapshot.data.documents.length,
               reverse: true,
@@ -108,63 +109,43 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget buildMessage(BuildContext context, index, DocumentSnapshot document){
     PictureMessage message = PictureMessage.fromDocument(document);
-
+    // FractionallySizedBox
     return Row(
       children: <Widget>[
-        Container(
-          child: FlatButton(
-            child: Material(
-              child: Hero(child: 
-                CachedNetworkImage(
-                  placeholder: (context, url) => Container(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        Flexible(
+          child: FractionallySizedBox(
+            widthFactor: .70,
+            child: Container(
+              child: FlatButton(
+                child: Material(
+                  child: Hero(child: 
+                    CachedNetworkImage(
+                      placeholder: (context, url) => CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      imageUrl: message.url,
+                      //width: 300.0, //mediaquery for screenwidth
+                      //height: 300.0,
+                      fit: BoxFit.cover,
                     ),
-                    width: 200.0,
-                    height: 200.0,
-                    padding: EdgeInsets.all(70.0),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(8.0),
-                      ),
-                    ),
+                    tag: message.url
                   ),
-                  errorWidget: (context, url, error) => Material(
-                    child: Text("Error getting image"),
-                    // Image.asset(
-                    //   'images/img_not_available.jpeg',
-                    //   width: 200.0,
-                    //   height: 200.0,
-                    //   fit: BoxFit.cover,
-                    // ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(8.0),
-                    ),
-                    clipBehavior: Clip.hardEdge,
-                  ),
-                  imageUrl: message.url,
-                  width: 300.0, //mediaquery for screenwidth
-                  height: 300.0,
-                  fit: BoxFit.cover,
+
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  clipBehavior: Clip.hardEdge,
                 ),
-                tag: message.url
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context, 
+                    Routes.picture_chat, 
+                    arguments: message
+                  );
+                },
+                padding: EdgeInsets.all(0),
               ),
+              margin: EdgeInsets.only(bottom: newestMessage(index) ? 20.0 : 10.0, right: 10.0), //todo maybe add padding to input instead
 
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              clipBehavior: Clip.hardEdge,
             ),
-            onPressed: () {
-              Navigator.pushNamed(
-                context, 
-                Routes.picture_chat, 
-                arguments: message
-              );
-            },
-            padding: EdgeInsets.all(0),
           ),
-          margin: EdgeInsets.only(bottom: newestMessage(index) ? 20.0 : 10.0, right: 10.0), //todo maybe add padding to input instead
-
         )
       ],
       mainAxisAlignment: message.fromId == ScopedModel.of<ApiModel>(context).user.uid ? MainAxisAlignment.end : MainAxisAlignment.start,

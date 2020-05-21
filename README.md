@@ -20,3 +20,5 @@ samples, guidance on mobile development, and a full API reference.
 - Ios and Android
 - Change many widgets to stateless
 - Deleting old pictures
+- Renaming Contacts locally
+- Provider instead of ScopedModel

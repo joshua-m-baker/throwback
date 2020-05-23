@@ -4,15 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:throwback/models/new_message.dart';
-import 'package:throwback/models/picture_message.dart';
 import 'package:throwback/models/auth_model.dart';
 import 'package:throwback/models/contact.dart';
 
 import 'package:throwback/pages/send_dialog.dart';
-import 'package:throwback/util/router.dart';
+import 'package:throwback/pages/message.dart';
 
 class ChatPage extends StatefulWidget {
 
@@ -70,8 +68,9 @@ class _ChatPageState extends State<ChatPage> {
           } else {
             messagesList = snapshot.data.documents;
             return ListView.builder(
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 65), //TODO better solution //EdgeInsets.all(10.0),
-              itemBuilder: (context, index) => buildMessage(context, index, snapshot.data.documents[index]),
+              //padding: EdgeInsets.fromLTRB(10, 10, 10, 65), //TODO better solution //EdgeInsets.all(10.0),
+              padding: EdgeInsets.only(bottom: 65),
+              itemBuilder: (context, index) => buildMessage(context, snapshot.data.documents[index]),
               itemCount: snapshot.data.documents.length,
               reverse: true,
               controller: listScrollController,
@@ -79,47 +78,6 @@ class _ChatPageState extends State<ChatPage> {
           }
         }
       )
-    );
-  }
-
-  Widget buildMessage(BuildContext context, index, DocumentSnapshot document){
-    PictureMessage message = PictureMessage.fromDocument(document);
-    return Row(
-      children: <Widget>[
-        Flexible(
-          child: FractionallySizedBox(
-            widthFactor: .70,
-            child: Container(
-              child: FlatButton(
-                child: Material(
-                  child: Hero(child: 
-                    CachedNetworkImage(
-                      placeholder: (context, url) => CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                      imageUrl: message.url,
-                      fit: BoxFit.cover,
-                    ),
-                    tag: message.url
-                  ),
-
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  clipBehavior: Clip.hardEdge,
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context, 
-                    Routes.picture_chat, 
-                    arguments: message
-                  );
-                },
-                padding: EdgeInsets.all(0),
-              ),
-              margin: EdgeInsets.only(bottom: 10.0), //todo maybe add padding to input instead
-            ),
-          ),
-        )
-      ],
-      mainAxisAlignment: message.fromId == ScopedModel.of<ApiModel>(context).user.uid ? MainAxisAlignment.end : MainAxisAlignment.start,
     );
   }
 

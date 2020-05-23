@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:throwback/models/picture_message.dart';
 
+// todo rename to focus message? 
+
 class PictureChat extends StatefulWidget {
 
   //final String chatId;

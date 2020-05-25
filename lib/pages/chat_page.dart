@@ -70,7 +70,7 @@ class _ChatPageState extends State<ChatPage> {
             return ListView.builder(
               //padding: EdgeInsets.fromLTRB(10, 10, 10, 65), //TODO better solution //EdgeInsets.all(10.0),
               padding: EdgeInsets.only(bottom: 65),
-              itemBuilder: (context, index) => buildMessage(context, snapshot.data.documents[index]),
+              itemBuilder: (context, index) => buildMessage(context, snapshot.data.documents[index]), // separation between different senders (listview separated?)
               itemCount: snapshot.data.documents.length,
               reverse: true,
               controller: listScrollController,

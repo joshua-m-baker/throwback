@@ -75,7 +75,7 @@ class _SendDialogState extends State<SendDialog>{
     )) ?? false;
   }
 
-  Widget customDialog(NewMessage message) {
+  Widget customDialog() {
     return ScopedModelDescendant<ApiModel>(
       builder: (BuildContext context, Widget child, ApiModel apiModel) {    
         return Dialog(
@@ -87,7 +87,7 @@ class _SendDialogState extends State<SendDialog>{
                   width: double.infinity,
                   child: FittedBox(
                     child: Image(
-                      image: FileImage(message.imageFile), 
+                      image: FileImage(widget.message.imageFile), 
                     ),
                     fit: BoxFit.fitWidth
                   ),
@@ -114,7 +114,9 @@ class _SendDialogState extends State<SendDialog>{
                     }),
                     Container(
                       child: _isSendingMessage ? CircularProgressIndicator() : FlatButton(child: Icon(Icons.send), onPressed: () { 
-                        sendMessage(message); 
+                        widget.message.title = _titleController.text.trim();
+                        widget.message.description = _descriptionController.text.trim();
+                        sendMessage(widget.message); 
                       }),
                     ),
                   ],
@@ -124,44 +126,6 @@ class _SendDialogState extends State<SendDialog>{
           )
         );
       });
-  }
-
-
-  Widget sendDialog(NewMessage message) {
-    return AlertDialog( 
-      actions: <Widget>[
-        FlatButton(child: Text("Cancel"), onPressed: () {
-          _onWillPop().then(
-            (result) {
-              if (result) {
-                Navigator.of(context).pop(false);
-              }
-            }
-          );
-        } ),
-        Container(
-          child: _isSendingMessage ? CircularProgressIndicator() : FlatButton(child: Icon(Icons.send), onPressed: () { 
-            message.title = _titleController.text.trim();
-            message.description = _descriptionController.text.trim();
-            sendMessage(message); 
-          }),
-        ),
-      ],
-      title: Text('Send'),
-      content: Column(
-        children: <Widget>[
-          Image.file(message.imageFile),
-          TextField(
-            decoration: InputDecoration(hintText: "Title"),
-            controller: _titleController,
-          ),
-          TextField(
-            decoration: InputDecoration(hintText: "Description"),
-            controller: _descriptionController,
-          ),
-        ],
-      ),
-    );
   }
 
   void sendMessage(NewMessage message) async {

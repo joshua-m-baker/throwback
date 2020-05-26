@@ -14,71 +14,47 @@ double width = .70;
 Widget buildMessage(BuildContext context, DocumentSnapshot document){
   PictureMessage message = PictureMessage.fromDocument(document);
   bool sentByMe = message.fromId == ScopedModel.of<ApiModel>(context).user.uid;
+  bool hasTitle = message.title != '';
+  print(message.title);
+  print(hasTitle);
   return Row(
     children: <Widget>[
       Flexible(
         child: FractionallySizedBox(
           widthFactor: width,
           child: Container(
-            decoration: BoxDecoration(
-                color: sentByMe ? Colors.lightBlueAccent : Colors.lightBlueAccent, 
-                borderRadius: BorderRadius.all(Radius.circular(6.0))
-            ),
-            padding: EdgeInsets.only(top: 10),
+            decoration: hasTitle ? BoxDecoration(
+              color: sentByMe ? Colors.blue[400] : Colors.grey[300], 
+              borderRadius: BorderRadius.all(Radius.circular(6.0))
+            ) : null,
+            //padding: EdgeInsets.only(top: 10),
+            //padding: EdgeInsets.all(0),
             margin: EdgeInsets.symmetric(
               vertical: 2, 
               horizontal: 10
-              ),
+            ),
             child: Column(
               children: <Widget>[
-                Text(
-                  message.title == '' ? "Title" : message.title,
-                  style: TextStyle(color: Colors.white),
-                ),
+                hasTitle ? Container(
+                  padding: EdgeInsets.symmetric(vertical: 5),
+                  child: Text(
+                    message.title,
+                    style: TextStyle(
+                      color: sentByMe ? Colors.white : Colors.black,
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ) : Container(),
                 _buildPicture(context, message),
               ],
-              crossAxisAlignment: CrossAxisAlignment.start,
+              //crossAxisAlignment: CrossAxisAlignment.start,
             ),
           ),
         ),
       ),
     ],
     mainAxisAlignment: sentByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-  );
-}
-
-Widget buildMessageOld(BuildContext context, DocumentSnapshot document){
-  PictureMessage message = PictureMessage.fromDocument(document);
-  return Row(
-    children: <Widget>[
-      Flexible(
-        child: FractionallySizedBox(
-          widthFactor: .70,
-          child: Container(
-            margin: EdgeInsets.fromLTRB(7, 0, 7, 7),
-            child: Stack(
-              children: <Widget>[
-                SizedBox(
-                  width: double.infinity,
-                  child: new Text(
-                    "Title",
-                    style: TextStyle(backgroundColor: Colors.green),
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: _buildPicture(context, message),
-
-                )
-                
-              ],
-            )
-            //margin: EdgeInsets.only(bottom: 10.0), //todo maybe add padding to bottom of screen instead
-          ),
-        ),
-      )
-    ],
-    mainAxisAlignment: message.fromId == ScopedModel.of<ApiModel>(context).user.uid ? MainAxisAlignment.end : MainAxisAlignment.start,
   );
 }
 
@@ -92,11 +68,11 @@ Widget _buildPicture(BuildContext context, PictureMessage message){
           imageUrl: message.url,
           fit: BoxFit.cover,
         ),
-        tag: message.url
+        tag: message.url  
       ),
 
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-      clipBehavior: Clip.hardEdge,
+      clipBehavior: Clip.antiAlias,
     ),
     onPressed: () {
       Navigator.pushNamed(

@@ -40,7 +40,7 @@ class _SendDialogState extends State<SendDialog>{
   @override
   Widget build(BuildContext context){
     return WillPopScope(
-      child: customDialog(widget.message), 
+      child: customDialog(), 
       onWillPop: _onWillPop
     );
   }
